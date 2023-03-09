@@ -36,7 +36,7 @@ External packages containing additional domains and algorithms may be installed 
 OPOF is officially tested and supported for Python 3.9, 3.10, 3.11 on Linux.
 
 ## API
-OPOF encapsulates planner optimization problems as a `Domain` class. It contains all key components required to specify the problem. Below is an example of interacting with the `RandomWalk2D[11]` domain. 
+Below is an example of interacting with the `RandomWalk2D[11]` domain. 
 
 ```python
 from opof_grid2d.domains import RandomWalk2D
@@ -50,6 +50,8 @@ for i in range(100):
     result = planner(problems(), [p[i] for p in parameters])
     print(result["objective"])
 ```
+
+Our complete documentation is available at [https://opof.kavrakilab.org](https://opof.kavrakilab.org).
 
 ## Citing
 TBC
