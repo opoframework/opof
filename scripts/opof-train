@@ -1,0 +1,50 @@
+import argparse
+import torch
+import numpy as np
+
+from opof.registry import (
+    parse_callable,
+    resolve_algorithm,
+    resolve_domain_class,
+    to_canonical,
+)
+
+if __name__ == "__main__":
+    # Arguments.
+    parser = argparse.ArgumentParser(description="OPOF Training utility script")
+    parser.add_argument(
+        "domain",
+        type=str,
+        help="Domain to solve.",
+    )
+    parser.add_argument("algorithm", type=str, help="Learning algorithm to use.")
+    args = parser.parse_args()
+
+    from opof.registry import resolve_algorithm, resolve_domain_class
+
+    # Resolve domain class info.
+    domain_info = parse_callable(args.domain)
+    domain_class = resolve_domain_class(domain_info[0])
+    if domain_class is None:
+        print(f"Unresolved domain class: {domain_info[0]}")
+        exit()
+    print(f"Domain: {to_canonical(args.domain)}")
+    print(f"Callable: {domain_info[0]}({domain_info[1]})")
+
+    # Resolve algorithm info.
+    algorithm_info = parse_callable(args.algorithm)
+    algorithm = resolve_algorithm(algorithm_info[0])
+    if algorithm is None:
+        print(f"Unresolved algorithm: {algorithm_info[0]}")
+        exit()
+    print(f"Algorithm: {to_canonical(args.algorithm)}")
+    print(f"Callable: {algorithm_info[0]}({algorithm_info[1]})")
+
+    # Create eval log.
+    eval_folder = f"./results/{to_canonical(args.domain)}.{to_canonical(args.algorithm)}"
+    save_folder = f"./trained/{to_canonical(args.domain)}.{to_canonical(args.algorithm)}"
+
+    # Instantiate domain and algorithm.
+    domain = eval(f"domain_class({domain_info[1]})")
+    algorithm = eval(f"algorithm(domain, {algorithm_info[1]}, eval_folder=eval_folder, save_folder=save_folder)")
+    algorithm()

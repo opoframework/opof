@@ -1,0 +1,65 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - 'master'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build OPOF.
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install Python dependencies
+        run: pip install build
+
+      - name: Build wheel
+        run: python -m build --wheel
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: opof
+          path: dist/*.whl
+
+  test:
+    needs: build
+    name: Test OPOF on ${{ matrix.os }} with Python ${{ matrix.python-version }}.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-22.04]
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: opof
+          path: dist
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package
+        run: pip install dist/*.whl
+
+      - name: Install test dependencies
+        run: pip install pytest
+
+      - name: Run tests
+        run: pytest

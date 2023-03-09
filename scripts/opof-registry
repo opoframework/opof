@@ -1,0 +1,28 @@
+import inspect
+
+from opof.registry import concurrency, get_algorithms, get_domain_classes, get_signature
+
+if __name__ == "__main__":
+    domains = get_domain_classes()
+    if len(domains) == 0:
+        print("No domain found. Check that $OPOF_DOMAINS is set.")
+    else:
+        print(f"Found {len(domains)} domain classes:")
+        for domain in domains:
+            print("  " + get_signature(domain))
+            print("  " + f"  -> {inspect.getfile(domain)}")
+        print()
+
+    algorithms = get_algorithms()
+    if len(algorithms) == 0:
+        print("No algorithm found.")
+    else:
+        print(f"Found {len(algorithms)} algorithms:")
+        for algorithm in algorithms:
+            print("  " + get_signature(algorithm))
+            print("  " + f"  -> {inspect.getfile(algorithm)}")
+        print()
+
+    print("Other configurations:")
+    print("  " + f"Concurency: {concurrency()}")
+    print()

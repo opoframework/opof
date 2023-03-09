@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css?family=Lato');
+
+body{
+    font-family: "Lato";
+}
+
+.wy-side-nav-search {
+  background-color: white;
+}
+
+.wy-side-nav-search>div.version {
+  color: black;
+}
+
+.wy-nav-top {
+  background: #404040;
+}
