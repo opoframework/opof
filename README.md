@@ -8,6 +8,8 @@ Our complete documentation is available at [https://opof.kavrakilab.org](https:/
 
 [![Build and Test](https://github.com/opoframework/opof/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/opoframework/opof/actions/workflows/build_and_test.yml)
 
+OPOF is developed and maintained by the Kavraki Lab at Rice University.
+
 ## Algorithms
 
 OPOF includes the following stable algorithm implementations. 
@@ -59,3 +61,5 @@ TBC
 ## License
 
 OPOF is licensed under the [BSD-3 license](https://github.com/opoframework/opof/blob/master/LICENSE.md).
+
+OPOF is developed and maintained by the [Kavraki Lab](https://www.kavrakilab.org/) at Rice University, funded in part by NSF RI 2008720 and Rice University funds.
