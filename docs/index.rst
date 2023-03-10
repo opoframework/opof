@@ -18,6 +18,8 @@ framework for developing domains and algorithms for planner optimization.
 It provides a standard API to communicate between optimization algorithms 
 and domains, along with a set of stable algorithm implementations.
 
+OPOF is developed and maintained by the `Kavraki Lab <https://www.kavrakilab.org/>`_ at Rice University.
+
 Algorithms
 ----------
 
@@ -72,6 +74,8 @@ License
 
 OPOF is licensed under the `BSD-3
 license <https://github.com/opoframework/opof/blob/master/LICENSE.md>`__.
+
+OPOF is developed and maintained by the `Kavraki Lab <https://www.kavrakilab.org/>`_ at Rice University, funded in part by NSF RI 2008720 and Rice University funds.
 
 .. toctree::
    :caption: User Guide
