@@ -8,7 +8,7 @@ Our complete documentation is available at [https://opof.kavrakilab.org](https:/
 
 [![Build and Test](https://github.com/opoframework/opof/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/opoframework/opof/actions/workflows/build_and_test.yml)
 
-OPOF is developed and maintained by the Kavraki Lab at Rice University.
+OPOF is developed and maintained by the [Kavraki Lab](https://kavrakilab.org) at Rice University.
 
 ## Algorithms
 
