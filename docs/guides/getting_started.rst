@@ -17,7 +17,7 @@ Next, install OPOF's core library and the example domains used in this guide:
 
 .. code-block:: console
 
-  $ pip install --index-url https://opof.kavrakilab.org/pypi opof opof-grid2d
+  $ pip install opof opof-grid2d
 
 
 Using Domains
