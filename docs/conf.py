@@ -46,6 +46,7 @@ extensions = [
     "sphinx.ext.viewcode",
     # "sphinx_autodoc_typehints",
     "sphinx.ext.intersphinx",
+    "sphinx_sitemap",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -221,3 +222,6 @@ html_context = {
     "github_version": "master", # Version
     "conf_py_path": "/docs/", # Path in the checkout to the docs root
 }
+
+html_baseurl = 'https://opof.kavrakilab.org/'
+sitemap_url_scheme = "{link}"
