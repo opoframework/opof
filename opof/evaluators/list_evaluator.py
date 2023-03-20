@@ -85,7 +85,7 @@ class ListEvaluator(Generic[Problem], opof.Evaluator[Problem]):
             for problem in self.problems:
                 (parameters, _, extras) = generator([problem])
                 parameters = [p[0].detach().cpu().numpy() for p in parameters]
-                self.job_queue.put((problem, parameters, extras))
+                self.job_queue.put((problem, parameters, [e[0] for e in extras]))
 
         # Wait for completion.
         keys = set()

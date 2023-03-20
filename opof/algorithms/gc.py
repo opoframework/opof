@@ -328,7 +328,7 @@ class GC(Algorithm):
                     # Submit jobs.
                     for (i, _problem) in enumerate(problem):
                         _parameters = [p[i].detach().cpu().numpy() for p in parameters]
-                        job_queue.put((_problem, _parameters, extras))
+                        job_queue.put((_problem, _parameters, [e[i] for e in extras]))
         finally:
             for _ in workers:
                 job_queue.put(None)

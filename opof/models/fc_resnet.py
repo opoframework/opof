@@ -27,14 +27,15 @@ def outputs_to_parameters(
 
     parameters = []
     entropies: List[torch.Tensor] = []
-    extras: List[Any] = []
+    extras: List[List[Any]] = []
     offset = 0
     for (pspace, sampler) in zip(spaces, samplers):
         (p, e, o) = sampler(outputs[:, offset : offset + pspace.dist_num_inputs])
         parameters.append(p)
         if e is not None:
             entropies.append(e)
-        extras.extend(o)
+        if len(o) > 0:
+            extras.append(o)
         offset += pspace.dist_num_inputs
     return (
         parameters,
