@@ -8,6 +8,7 @@ from opof.registry import (
     resolve_algorithm,
     resolve_domain_class,
     to_canonical,
+    concurrency
 )
 
 if __name__ == "__main__":
@@ -53,6 +54,9 @@ if __name__ == "__main__":
     print(f"Algorithm: {to_canonical(args.algorithm)}")
     print(f"Callable: {algorithm_info[0]}({algorithm_info[1]})")
     print(f"Label: {args.label}")
+
+    # Additional info.
+    print(f"Concurrency: {concurrency()}")
 
     # Create eval log.
     if len(args.label.strip()):
