@@ -21,7 +21,7 @@ def create_output_layer(spaces: List[ParameterSpace]) -> nn.Module:
 
 def outputs_to_parameters(
     outputs: torch.Tensor, spaces: List[ParameterSpace], samplers: nn.ModuleList
-) -> Tuple[List[torch.Tensor], Optional[torch.Tensor], List[Any]]:
+) -> Tuple[List[torch.Tensor], Optional[torch.Tensor], List[List[Any]]]:
     assert len(outputs.shape) == 2, "Invalid outputs"
     assert outputs.shape[1] == sum(s.dist_num_inputs for s in spaces), "Invalid outputs"
 
@@ -102,7 +102,7 @@ class FCResNetGenerator(Generic[Problem], Generator[Problem]):
 
     def forward(
         self, problem: List[Problem]
-    ) -> Tuple[List[Tensor], Optional[Tensor], List[Any]]:
+    ) -> Tuple[List[Tensor], Optional[Tensor], List[List[Any]]]:
         # Embed problem.
         x = self.problem_embedding(problem)
         x = self.fc_pre(x)
