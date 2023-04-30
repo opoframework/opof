@@ -23,6 +23,6 @@ class Planner(Generic[Problem], metaclass=ABCMeta):
 
         :param problem: Problem instance
         :param parameters: Planning parameters
-        :param parameters: Optional objects
+        :param extras: Optional objects
         :return: Dictionary consisting planning objective and other optional metrics and objects. The ``\"objective\"`` key **must** be present as a :class:`float` value.
         """

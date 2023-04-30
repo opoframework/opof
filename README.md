@@ -49,7 +49,7 @@ planner = domain.create_planner()
 
 parameters = [pspace.rand(100).numpy() for pspace in domain.composite_parameter_space()]
 for i in range(100):
-    result = planner(problems(), [p[i] for p in parameters])
+    result = planner(problems(), [p[i] for p in parameters], [])
     print(result["objective"])
 ```
 
