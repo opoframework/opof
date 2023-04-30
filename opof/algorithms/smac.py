@@ -61,6 +61,7 @@ class SMAC(Algorithm):
     ):
         """
         Constructs an instance of the algorithm for a given domain.
+
         :param domain: Domain
         :param iterations: Number of training iterations to run before terminating.
         :param batch_size: Number of problem instances to evaluate the query planning parameters on per training iteration.

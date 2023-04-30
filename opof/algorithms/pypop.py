@@ -80,6 +80,16 @@ class PyPop(Algorithm):
         eval_folder: Optional[str] = None,
         save_folder: Optional[str] = None,
     ):
+        """
+        Constructs an instance of the algorithm for a given domain.
+
+        :param domain: Domain
+        :param iterations: Number of training iterations to run before terminating.
+        :param batch_size: Number of problem instances to evaluate the query planning parameters on per training iteration.
+        :param eval_interval: Interval to evaluate generator.
+        :param eval_folder: Optional path to write evaluation logs across training. If :code:`None`, evaluations are not logged.
+        :param save_folder: Optional path to save models across training. If :code:`None`, models are not saved.
+        """
 
         super(PyPop, self).__init__(domain, eval_folder, save_folder)
 

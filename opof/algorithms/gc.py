@@ -102,6 +102,7 @@ class GC(Algorithm):
     ):
         """
         Constructs an instance of the algorithm for a given domain.
+
         :param domain: Domain
         :param iterations: Number of training iterations to run before terminating.
         :param device: Device to train models on.
