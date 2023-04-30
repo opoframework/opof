@@ -47,7 +47,6 @@ setup(
         "pypop7",
         "scikit-learn==1.2.0",
         "tensorboard",
-        "power_spherical @ git+https://github.com/nicola-decao/power_spherical.git",
     ],
     extras_require={
         "tests": [
