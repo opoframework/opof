@@ -49,6 +49,20 @@ def pypop_to_opof(x: List[float], composite_pspace: List[ParameterSpace]):
 
 
 class PyPop(Algorithm):
+    """
+    :class:`PyPop` is a wrapper around the `PyPop7 package <https://github.com/Evolutionary-Intelligence/pypop>`_,
+    an actively maintained tool for algorithm configuration using the latest population-based optimization techniques.
+    We use the `MMES <https://pypop.readthedocs.io/en/latest/es/mmes.html>`_
+    strategy provided by PyPop7.
+    In the context of the planner optimization problem, PyPop learns only a generator :math:`G_\\theta(c) = \\theta` that is unconditional
+    (i.e. does not change with the problem instance) and deterministic (i.e., always returns the same planning parameters).
+    While PyPop does not exploit information specific to each problem instance, it provides an approach that has strong
+    theoretical grounding and serves as a reasonable baseline and sanity check.
+    Note that in our implementation, each PyPop training iteration involves doing :math:`batch\\_size` planner calls on :math:`batch\\_size`
+    sampled problem instances, with the average performancec returned to PyPop.
+    Hence, the number of training iterations should be adjusted accordingly to ensure the same amount of data (in terms of planner calls)
+    is used for comparison.
+    """
 
     iterations: int
     batch_size: int
