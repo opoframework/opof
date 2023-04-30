@@ -37,7 +37,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
     ],
     python_requires=">=3.9",
     install_requires=[
@@ -46,7 +45,7 @@ setup(
         "pyyaml",
         "swig",  # Needed for SMAC, otherwise the system package needs to be installed.
         "smac==2.0.0",
-        "pypop7==0.0.69",
+        "pypop7",
         "scikit-learn==1.2.0",
         "tensorboard",
         "power_spherical @ git+https://github.com/nicola-decao/power_spherical.git",
