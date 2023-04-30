@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 from opof import Domain
-from opof.algorithms import GC, SMAC
+from opof.algorithms import GC, SMAC, PyPop
 from opof.parameter_spaces import Simplex
 from opof.problem_sets import ProblemList
 
@@ -134,13 +134,19 @@ def test_random_walk_domain():
         assert "objective" in result
 
 
+def test_random_walk_gc():
+    domain = RandomWalk(10, 20, 100)
+    algorithm = GC(domain, 100, min_buffer_size=100, eval_interval=50)
+    algorithm()
+
+
 def test_random_walk_smac():
     domain = RandomWalk(10, 20, 100)
     algorithm = SMAC(domain, 50, 10, eval_interval=25)
     algorithm()
 
 
-def test_random_walk_gc():
+def test_random_walk_pypop():
     domain = RandomWalk(10, 20, 100)
-    algorithm = GC(domain, 100, min_buffer_size=100, eval_interval=50)
+    algorithm = PyPop(domain, 50, 10, eval_interval=25)
     algorithm()
