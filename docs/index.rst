@@ -34,6 +34,11 @@ OPOF includes the following stable algorithm implementations.
    Bayesian optimization techniques. Wrapper around the actively
    maintained `SMAC3 <https://github.com/automl/SMAC3>`__ Bayesian
    optimization library.
+-  `PyPop <https://opof.kavrakilab.org/algorithms/PyPop.html>`__ - Learns
+   an unconditional and deterministic generator using the latest
+   population-based (a.k.a evolutionary strategies) techniques. Wrapper 
+   around the actively maintained `PyPop7 <https://github.com/Evolutionary-Intelligence/pypop>`__ 
+   population-based optimization library.
 
 We expect the list to grow with time, and welcome any additions.
 
@@ -111,6 +116,7 @@ OPOF is developed and maintained by the `Kavraki Lab <https://www.kavrakilab.org
    algorithms/base
    GC <algorithms/GC>
    SMAC <algorithms/SMAC>
+   PyPop <algorithms/PyPop>
 
 .. toctree::
    :maxdepth: 2
