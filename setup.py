@@ -30,13 +30,13 @@ setup(
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Mathematics",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Scientific/Engineering :: Robotics",
         "Topic :: Software Development",
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
     ],
     python_requires=">=3.9",
     install_requires=[
@@ -45,8 +45,10 @@ setup(
         "pyyaml",
         "swig",  # Needed for SMAC, otherwise the system package needs to be installed.
         "smac==2.0.0",
+        "pypop7",
         "scikit-learn==1.2.0",
         "tensorboard",
+        "power_spherical @ git+https://github.com/nicola-decao/power_spherical.git",
     ],
     extras_require={
         "tests": [

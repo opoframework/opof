@@ -18,7 +18,7 @@ framework for developing domains and algorithms for planner optimization.
 It provides a standard API to communicate between optimization algorithms 
 and domains, along with a set of stable algorithm implementations.
 
-OPOF is maintained by the `Kavraki Lab <https://www.kavrakilab.org/>`_ at Rice University.
+OPOF is developed and maintained by the `Kavraki Lab <https://www.kavrakilab.org/>`_ at Rice University.
 
 Algorithms
 ----------
@@ -67,17 +67,7 @@ For installation instructions and API code examples, please refer to
 Citing
 ------
 
-If you use OPOF, please cite us with:
-
-.. code-block:: none
-
-  @article{lee23opof,
-    author = {Lee, Yiyuan and Lee, Katie and Cai, Panpan and Hsu, David and Kavraki, Lydia E.},
-    title = {The Planner Optimization Problem: Formulations and Frameworks},
-    booktitle = {arXiv},
-    year = {2023},
-    doi = {10.48550/ARXIV.2303.06768},
-  }
+TBC
 
 License
 -------
@@ -85,7 +75,7 @@ License
 OPOF is licensed under the `BSD-3
 license <https://github.com/opoframework/opof/blob/master/LICENSE.md>`__.
 
-OPOF is maintained by the `Kavraki Lab <https://www.kavrakilab.org/>`_ at Rice University, funded in part by NSF RI 2008720 and Rice University funds.
+OPOF is developed and maintained by the `Kavraki Lab <https://www.kavrakilab.org/>`_ at Rice University, funded in part by NSF RI 2008720 and Rice University funds.
 
 .. toctree::
    :caption: User Guide

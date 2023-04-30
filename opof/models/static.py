@@ -9,8 +9,8 @@ Problem = TypeVar("Problem")
 
 class StaticGenerator(Generic[Problem], Generator[Problem]):
     """
-    :class:`StaticGenerator` represents a generator :math:`G_\\theta(c)` that returns 
-    fixed parameters :math:`x \\in \\mathcal{X}` and extra objects for any 
+    :class:`StaticGenerator` represents a generator :math:`G_\\theta(c)` that returns
+    fixed parameters :math:`x \\in \\mathcal{X}` and extra objects for any
     given problem instance.
     """
 
@@ -30,8 +30,12 @@ class StaticGenerator(Generic[Problem], Generator[Problem]):
 
     def forward(
         self, problem: List[Problem]
-    ) -> Tuple[List[Tensor], Optional[Tensor], List[Any]]:
-        p = []
-        for l in self.parameters:
-            p.append(l.repeat(len(problem), *[1 for _ in l.shape]))
-        return (p, None, self.extras)
+    ) -> Tuple[List[Tensor], Optional[Tensor], List[List[Any]]]:
+        parameters = []
+        extras = []
+        for p in self.parameters:
+            parameters.append(p.repeat(len(problem), *[1 for _ in p.shape]))
+        if len(self.extras) > 0:
+            for e in self.extras:
+                extras.append([e for _ in problem])
+        return (parameters, None, extras)

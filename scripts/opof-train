@@ -1,4 +1,5 @@
 import argparse
+
 import torch
 import numpy as np
 
@@ -7,6 +8,7 @@ from opof.registry import (
     resolve_algorithm,
     resolve_domain_class,
     to_canonical,
+    concurrency
 )
 
 if __name__ == "__main__":
@@ -18,6 +20,18 @@ if __name__ == "__main__":
         help="Domain to solve.",
     )
     parser.add_argument("algorithm", type=str, help="Learning algorithm to use.")
+    parser.add_argument(
+        "--label",
+        type=str,
+        help="Optional label for this run",
+        default="",
+    )
+    parser.add_argument(
+        "--output-prefix",
+        type=str,
+        help="Location prefix for results",
+        default="./",
+    )
     args = parser.parse_args()
 
     from opof.registry import resolve_algorithm, resolve_domain_class
@@ -39,12 +53,22 @@ if __name__ == "__main__":
         exit()
     print(f"Algorithm: {to_canonical(args.algorithm)}")
     print(f"Callable: {algorithm_info[0]}({algorithm_info[1]})")
+    print(f"Label: {args.label}")
+
+    # Additional info.
+    print(f"Concurrency: {concurrency()}")
 
     # Create eval log.
-    eval_folder = f"./results/{to_canonical(args.domain)}.{to_canonical(args.algorithm)}"
-    save_folder = f"./trained/{to_canonical(args.domain)}.{to_canonical(args.algorithm)}"
+    if len(args.label.strip()):
+        eval_folder = f"{args.output_prefix}results/{to_canonical(args.domain)}.{to_canonical(args.algorithm)}.{args.label.strip()}"
+        save_folder = f"{args.output_prefix}trained/{to_canonical(args.domain)}.{to_canonical(args.algorithm)}.{args.label.strip()}"
+    else:
+        eval_folder = f"{args.output_prefix}results/{to_canonical(args.domain)}.{to_canonical(args.algorithm)}"
+        save_folder = f"{args.output_prefix}trained/{to_canonical(args.domain)}.{to_canonical(args.algorithm)}"
 
     # Instantiate domain and algorithm.
     domain = eval(f"domain_class({domain_info[1]})")
-    algorithm = eval(f"algorithm(domain, {algorithm_info[1]}, eval_folder=eval_folder, save_folder=save_folder)")
+    algorithm = eval(
+        f"algorithm(domain, {algorithm_info[1]}, eval_folder=eval_folder, save_folder=save_folder)"
+    )
     algorithm()

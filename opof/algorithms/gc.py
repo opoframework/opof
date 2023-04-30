@@ -1,5 +1,6 @@
 import itertools
 import os
+import shutil
 from multiprocessing import Process, Queue
 from typing import Any, List, Optional, TypeVar
 
@@ -7,7 +8,7 @@ import numpy as np
 import torch
 import torch.nn.utils
 from torch.optim import Adam
-from torch.utils.tensorboard.writer import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 from ..algorithm import Algorithm
 from ..domain import Domain
@@ -56,11 +57,9 @@ Problem = TypeVar("Problem")
 class GC(Algorithm):
     """
     :class:`GC` is our implementation of the Generator-Critic algorithm introduced across the recent works of [Lee2021a]_, [Lee2022a]_, and [Danesh2022a]_.
-
     Two neural networks are learned simultaneously -- a *generator network* representing the generator :math:`G_\\theta(c)` and a *critic network*.
     The generator is stochastic, and maps a problem instance :math:`c \\in \\mathcal{C}` to a sample of planning parameters :math:`x \\in \\mathcal{X}`.
     The critic maps :math:`c` and :math:`x` into a real distribution modeling :math:`\\boldsymbol{f}(x; c)`.
-
     During training, the stochastic generator takes a random problem instance :math:`c \\in \\mathcal{C}` and produces a sample :math:`x \\in \\mathcal{X}`,
     which is used to probe the planner. The planner's response, along with :math:`c` and :math:`x`, are used to update the critic via supervision loss.
     The critic then acts as a *differentiable surrogate objective* for :math:`\\boldsymbol{f}(x; c)`, passing gradients to the generator via the chain rule.
@@ -75,6 +74,7 @@ class GC(Algorithm):
     max_buffer_size: int
     min_buffer_size: int
     batch_size: int
+    requires_entropy: Optional[bool]
 
     iterations: int
 
@@ -102,7 +102,6 @@ class GC(Algorithm):
     ):
         """
         Constructs an instance of the algorithm for a given domain.
-
         :param domain: Domain
         :param iterations: Number of training iterations to run before terminating.
         :param device: Device to train models on.
@@ -131,6 +130,7 @@ class GC(Algorithm):
             max_buffer_size if max_buffer_size is not None else self.iterations
         )
         self.batch_size = batch_size
+        self.requires_entropy = None
 
         self.eval_interval = eval_interval
         self.evaluator = self.domain.create_evaluator()
@@ -160,6 +160,8 @@ class GC(Algorithm):
         # Logger.
         logger: Optional[SummaryWriter] = None
         if self.eval_folder is not None:
+            if os.path.exists(self.eval_folder):
+                shutil.rmtree(self.eval_folder)
             logger = SummaryWriter(self.eval_folder)
 
         try:
@@ -242,40 +244,57 @@ class GC(Algorithm):
                     critic.eval()
                     generator.train()
                     (parameters, entropy, _) = generator(problem)
+
                     # Infer log_alpha dimensions lazily from entropy.
-                    if log_alpha is None:
-                        log_alpha = torch.tensor(
-                            np.array(
-                                [LOG_ALPHA_INIT] * entropy[0].reshape(-1).shape[0]
-                            ),
-                            requires_grad=True,
-                            device=self.device,
-                            dtype=self.dtype,
-                        )
-                        entropy_target = torch.tensor(
-                            list(
-                                itertools.chain(
-                                    *[
-                                        space.dist_target_entropy
-                                        for space in self.domain.composite_parameter_space()
-                                    ]
-                                )
-                            ),
-                            requires_grad=False,
-                            device=self.device,
-                            dtype=self.dtype,
-                        )
-                        alpha_optim = torch.optim.Adam([log_alpha], lr=self.alpha_lr)
-                    entropy = entropy.reshape(-1, log_alpha.shape[0])
+                    if self.requires_entropy == None:
+                        self.requires_entropy = entropy is not None
+                        if self.requires_entropy:
+                            log_alpha = torch.tensor(
+                                np.array(
+                                    [LOG_ALPHA_INIT] * entropy[0].reshape(-1).shape[0]
+                                ),
+                                requires_grad=True,
+                                device=self.device,
+                                dtype=self.dtype,
+                            )
+                            entropy_target = torch.tensor(
+                                list(
+                                    itertools.chain(
+                                        *[
+                                            space.dist_target_entropy
+                                            for space in self.domain.composite_parameter_space()
+                                        ]
+                                    )
+                                ),
+                                requires_grad=False,
+                                device=self.device,
+                                dtype=self.dtype,
+                            )
+                            alpha_optim = torch.optim.Adam(
+                                [log_alpha], lr=self.alpha_lr
+                            )
+
+                    # Compute generator term.
                     generator_performance = critic(problem, parameters).mean
-                    dual = (log_alpha.exp().detach() * entropy).sum(dim=-1)
                     debug_generator_perf = generator_performance.mean().detach().item()
-                    debug_entropy = entropy.mean().detach().item()
-                    if is_valid(generator_performance) and is_valid(dual):
+
+                    # Compute entropy terms.
+                    if self.requires_entropy == True:
+                        assert log_alpha is not None
+                        entropy = entropy.reshape(-1, log_alpha.shape[0])
+                        dual = (log_alpha.exp().detach() * entropy).sum(dim=-1)
+                        debug_entropy = entropy.mean().detach().item()
+
+                    if is_valid(generator_performance) and (
+                        self.requires_entropy == False or is_valid(dual)
+                    ):
                         generator_optim.zero_grad()
                         # We want to maximize performance and dual, but torch does
                         # minimization. So we use the negative.
-                        (-generator_performance - dual).mean().backward()
+                        if self.requires_entropy == True:
+                            (-generator_performance - dual).mean().backward()
+                        else:
+                            (-generator_performance).mean().backward()
                         torch.nn.utils.clip_grad_norm_(generator.parameters(), 1.0)
                         for p in generator.parameters():
                             if p is not None and p.grad is not None:
@@ -285,19 +304,22 @@ class GC(Algorithm):
                             if p is not None:
                                 torch.nan_to_num(p)
 
-                    # Update entropies.
-                    # Update log alpha.
-                    alpha_optim.zero_grad()
-                    alpha_loss = log_alpha * ((entropy - entropy_target).detach())
-                    alpha_loss.mean().backward()
-                    assert log_alpha.grad is not None
-                    with torch.no_grad():
-                        log_alpha.grad *= (
-                            ((-log_alpha.grad >= 0) | (log_alpha >= LOG_ALPHA_MIN))
-                            & ((-log_alpha.grad < 0) | (log_alpha <= LOG_ALPHA_MAX))
-                        ).type(self.dtype)
-                    alpha_optim.step()
-                    debug_log_alpha = log_alpha.mean().item()
+                    if self.requires_entropy == True:
+                        assert alpha_optim is not None
+                        assert log_alpha is not None
+                        # Update entropies.
+                        # Update log alpha.
+                        alpha_optim.zero_grad()
+                        alpha_loss = log_alpha * ((entropy - entropy_target).detach())
+                        alpha_loss.mean().backward()
+                        assert log_alpha.grad is not None
+                        with torch.no_grad():
+                            log_alpha.grad *= (
+                                ((-log_alpha.grad >= 0) | (log_alpha >= LOG_ALPHA_MIN))
+                                & ((-log_alpha.grad < 0) | (log_alpha <= LOG_ALPHA_MAX))
+                            ).type(self.dtype)
+                        alpha_optim.step()
+                        debug_log_alpha = log_alpha.mean().item()
 
                     debug_recent = sum(r[2] for r in buffer[-100:]) / 100
 
@@ -333,8 +355,9 @@ class GC(Algorithm):
                     debug.append(iteration)
                     debug.append(debug_critic_accuracy)
                     debug.append(debug_generator_perf)
-                    debug.append(debug_entropy)
-                    debug.append(debug_log_alpha)
+                    if self.requires_entropy == True:
+                        debug.append(debug_entropy)
+                        debug.append(debug_log_alpha)
                     debug.append(debug_recent)
                     if (
                         self.eval_interval is None
@@ -353,11 +376,12 @@ class GC(Algorithm):
                     problem.append(request_queue.get())
                 if len(problem) > 0:
                     generator.eval()
-                    (parameters, _, extras) = generator(problem)
+                    with torch.no_grad():
+                        (parameters, _, extras) = generator(problem)
                     # Submit jobs.
                     for (i, _problem) in enumerate(problem):
                         _parameters = [p[i].detach().cpu().numpy() for p in parameters]
-                        job_queue.put((_problem, _parameters, extras))
+                        job_queue.put((_problem, _parameters, [e[i] for e in extras]))
         finally:
             for _ in workers:
                 job_queue.put(None)
