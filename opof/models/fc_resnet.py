@@ -21,20 +21,21 @@ def create_output_layer(spaces: List[ParameterSpace]) -> nn.Module:
 
 def outputs_to_parameters(
     outputs: torch.Tensor, spaces: List[ParameterSpace], samplers: nn.ModuleList
-) -> Tuple[List[torch.Tensor], Optional[torch.Tensor], List[Any]]:
+) -> Tuple[List[torch.Tensor], Optional[torch.Tensor], List[List[Any]]]:
     assert len(outputs.shape) == 2, "Invalid outputs"
     assert outputs.shape[1] == sum(s.dist_num_inputs for s in spaces), "Invalid outputs"
 
     parameters = []
     entropies: List[torch.Tensor] = []
-    extras: List[Any] = []
+    extras: List[List[Any]] = []
     offset = 0
     for (pspace, sampler) in zip(spaces, samplers):
         (p, e, o) = sampler(outputs[:, offset : offset + pspace.dist_num_inputs])
         parameters.append(p)
         if e is not None:
             entropies.append(e)
-        extras.extend(o)
+        if len(o) > 0:
+            extras.append(o)
         offset += pspace.dist_num_inputs
     return (
         parameters,
@@ -78,7 +79,7 @@ class FCResNetGenerator(Generic[Problem], Generator[Problem]):
         self.num_blocks = num_blocks
 
         self.problem_embedding = domain.create_problem_embedding()
-        self.fc_pre = nn.Sequential(nn.LazyLinear(latent_size), nn.ReLU())
+        self.fc_pre = nn.Sequential(nn.LazyLinear(latent_size), nn.GELU())
         self.fc = nn.ModuleList(
             [
                 nn.Linear(latent_size, latent_size)
@@ -101,7 +102,7 @@ class FCResNetGenerator(Generic[Problem], Generator[Problem]):
 
     def forward(
         self, problem: List[Problem]
-    ) -> Tuple[List[Tensor], Optional[Tensor], List[Any]]:
+    ) -> Tuple[List[Tensor], Optional[Tensor], List[List[Any]]]:
         # Embed problem.
         x = self.problem_embedding(problem)
         x = self.fc_pre(x)
@@ -163,7 +164,7 @@ class FCResNetCritic(nn.Module, Generic[Problem]):
         self.parameters_embedding = nn.ModuleList(
             [pspace.create_embedding() for pspace in self.parameter_spaces]
         )
-        self.fc_pre = nn.Sequential(nn.LazyLinear(latent_size), nn.ReLU())
+        self.fc_pre = nn.Sequential(nn.LazyLinear(latent_size), nn.GELU())
         self.fc = nn.ModuleList(
             [
                 nn.Linear(latent_size, latent_size)

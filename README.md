@@ -8,7 +8,7 @@ Our complete documentation is available at [https://opof.kavrakilab.org](https:/
 
 [![Build and Test](https://github.com/opoframework/opof/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/opoframework/opof/actions/workflows/build_and_test.yml)
 
-OPOF is maintained by the [Kavraki Lab](https://kavrakilab.org) at Rice University.
+OPOF is developed and maintained by the [Kavraki Lab](https://kavrakilab.org) at Rice University.
 
 ## Algorithms
 
@@ -53,40 +53,13 @@ for i in range(100):
     print(result["objective"])
 ```
 
-Using our built-in `opof.algorithms.GC` planner optimization algorithm is surprisingly easy.
-
-```python
-   from opof_grid2d.domains import RandomWalk2D
-   from opof.algorithms import GC
-
-   domain = RandomWalk2D(11)
-   algo = GC(domain, iterations=100000, eval_folder="results/RandomWalk2D[11]")
-   algo()
-```
-
-Evaluation results stored at ``results/RandomWalk2D[11]`` can be viewed by running
-
-```console
-  $ tensorboard --logdir=results/
-```
-
 Our complete documentation is available at [https://opof.kavrakilab.org](https://opof.kavrakilab.org).
 
 ## Citing
-If you use OPOF, please cite us with:
-
-```
-@article{lee23opof,
-  author = {Lee, Yiyuan and Lee, Katie and Cai, Panpan and Hsu, David and Kavraki, Lydia E.},
-  title = {The Planner Optimization Problem: Formulations and Frameworks},
-  booktitle = {arXiv},
-  year = {2023},
-  doi = {10.48550/ARXIV.2303.06768},
-}
-```
+TBC
 
 ## License
 
 OPOF is licensed under the [BSD-3 license](https://github.com/opoframework/opof/blob/master/LICENSE.md).
 
-OPOF is maintained by the [Kavraki Lab](https://www.kavrakilab.org/) at Rice University, funded in part by NSF RI 2008720 and Rice University funds.
+OPOF is developed and maintained by the [Kavraki Lab](https://www.kavrakilab.org/) at Rice University, funded in part by NSF RI 2008720 and Rice University funds.

@@ -4,11 +4,11 @@ import numpy as np
 import torch
 import torch.distributions
 import torch.nn.functional as F
+from power_spherical import PowerSpherical
 from torch import Tensor
 from torch.nn import Module
 
 from ..parameter_space import ParameterSpace
-from .power_spherical import PowerSpherical
 
 EPS = 1e-6
 
@@ -41,7 +41,7 @@ class Sphere(ParameterSpace):
     in :math:`dimension`-dimensional space. In particular, each vector has
     :math:`L_2` norm summing to :math:`1`.
 
-    To transform a set of points in :math:`[0, 1]` into a single point in this
+    To transform a set of points in :math:`[0, 1]` into a single point in this 
     parameter space, we utilize the procedure:
 
     #. For each point, evaluate the inverse CDF of :math:`~\\mathcal{N}(0, 1)` at that point.
@@ -98,7 +98,7 @@ class Sphere(ParameterSpace):
     @property
     def trans_num_inputs(self) -> int:
         """
-        Returns the required number of points in :math:`[0, 1]` to be
+        Returns the required number of points in :math:`[0, 1]` to be 
         transformed into a single point in the parameter space.
 
         For :class:`Sphere`, this is equal to :math:`count \\times dimension`.
@@ -109,7 +109,7 @@ class Sphere(ParameterSpace):
 
     def trans_forward(self, inputs: Tensor) -> Tuple[Tensor, List[Any]]:
         """
-        Transforms a set of points in :math:`[0, 1]` into a single point in the parameter space.
+        Transforms a set of points in :math:`[0, 1]` into a single point in the parameter space. 
         The transformation may also return extra objects which are passed to the planner.
 
         For :class:`Sphere`, this takes :math:`(batch, count \\times dimension)` samples and
@@ -121,6 +121,7 @@ class Sphere(ParameterSpace):
         assert len(inputs.shape) == 2
         assert inputs.shape[1] == self.trans_num_inputs
         y = inputs.reshape(-1, self.count, self.dimension)
+        y = EPS + (1 - 2 * EPS) * y
         y = torch.special.ndtri(y)
 
         # When n is zero, the resultant vector is undefined.

@@ -1,3 +1,5 @@
+import os
+import shutil
 from multiprocessing import Process, Queue
 from pathlib import Path
 from typing import Optional
@@ -5,9 +7,10 @@ from typing import Optional
 import torch
 from ConfigSpace import Configuration, ConfigurationSpace, Float
 from smac import Callback, HyperparameterOptimizationFacade, Scenario
-from torch.utils.tensorboard.writer import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
-from ..algorithm import Algorithm
+from opof.algorithm import Algorithm
+
 from ..domain import Domain
 from ..models import StaticGenerator
 from ..registry import concurrency
@@ -28,21 +31,20 @@ def smac_worker(domain: Domain, job_queue: Queue, result_queue: Queue):
 
 class SMAC(Algorithm):
     """
-    :class:`SMAC` is a wrapper around the `SMAC3 package <https://github.com/automl/SMAC3>`_, 
-    an actively maintained tool for algorithm configuration using the latest Bayesian optimization techniques. 
-    We use the `HPOFacade <https://automl.github.io/SMAC3/main/api/smac.facade.hyperparameter_optimization_facade.html#smac.facade.hyperparameter_optimization_facade.HyperparameterOptimizationFacade>`_ 
-    strategy provided by SMAC3. 
-
-    In the context of the planner optimization problem, SMAC learns only a generator :math:`G_\\theta(c) = \\theta` that is unconditional 
-    (i.e. does not change with the problem instance) and deterministic (i.e., always returns the same planning parameters). 
-    While SMAC does not exploit information specific to each problem instance, it provides an approach that has strong 
+    :class:`SMAC` is a wrapper around the `SMAC3 package <https://github.com/automl/SMAC3>`_,
+    an actively maintained tool for algorithm configuration using the latest Bayesian optimization techniques.
+    We use the `HPOFacade <https://automl.github.io/SMAC3/main/api/smac.facade.hyperparameter_optimization_facade.html#smac.facade.hyperparameter_optimization_facade.HyperparameterOptimizationFacade>`_
+    strategy provided by SMAC3.
+    In the context of the planner optimization problem, SMAC learns only a generator :math:`G_\\theta(c) = \\theta` that is unconditional
+    (i.e. does not change with the problem instance) and deterministic (i.e., always returns the same planning parameters).
+    While SMAC does not exploit information specific to each problem instance, it provides an approach that has strong
     theoretical grounding and serves as a reasonable baseline and sanity check.
-
     Note that in our implementation, each SMAC training iteration involves doing :math:`batch\\_size` planner calls on :math:`batch\\_size`
-    sampled problem instances, with the average performancec returned to SMAC. 
+    sampled problem instances, with the average performancec returned to SMAC.
     Hence, the number of training iterations should be adjusted accordingly to ensure the same amount of data (in terms of planner calls)
     is used for comparison.
     """
+
     iterations: int
     batch_size: int
 
@@ -59,7 +61,6 @@ class SMAC(Algorithm):
     ):
         """
         Constructs an instance of the algorithm for a given domain.
-
         :param domain: Domain
         :param iterations: Number of training iterations to run before terminating.
         :param batch_size: Number of problem instances to evaluate the query planning parameters on per training iteration.
@@ -93,6 +94,8 @@ class SMAC(Algorithm):
         # Logger.
         logger: Optional[SummaryWriter] = None
         if self.eval_folder is not None:
+            if os.path.exists(self.eval_folder):
+                shutil.rmtree(self.eval_folder)
             logger = SummaryWriter(self.eval_folder)
 
         # Prepare SMAC.
@@ -117,9 +120,10 @@ class SMAC(Algorithm):
         problems = self.domain.create_problem_set()
 
         iterations = -1
+        has_initial_eval = False
         p_self = self
 
-        def eval_and_log(smbo):
+        def eval_and_log(smbo, it):
             incumbent = smbo.intensifier.get_incumbent()
             if incumbent is None:
                 return
@@ -143,17 +147,25 @@ class SMAC(Algorithm):
                 print(f" {k} = {result[k]}")
             if logger is not None:
                 for k in result.keys():
-                    logger.add_scalar(k, result[k], iterations * p_self.batch_size)
+                    logger.add_scalar(k, result[k], it)
 
         class cb(Callback):
             def on_tell_end(self, smbo, info, value):
                 nonlocal iterations
                 nonlocal p_self
+                nonlocal has_initial_eval
 
                 iterations += 1
                 print(iterations)
-                if iterations > 0 and iterations % p_self.eval_interval == 0:
-                    eval_and_log(smbo)
+
+                if (
+                    not has_initial_eval
+                    and smbo.intensifier.get_incumbent() is not None
+                ):
+                    has_initial_eval = True
+                    eval_and_log(smbo, 0)
+                elif iterations > 0 and iterations % p_self.eval_interval == 0:
+                    eval_and_log(smbo, iterations * p_self.batch_size)
 
                 if iterations >= p_self.iterations:
                     return False
