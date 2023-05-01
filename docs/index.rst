@@ -75,6 +75,7 @@ Citing
 If you use OPOF, please cite us with:
 
 .. code-block:: none
+
   @article{lee23opof,
     author = {Lee, Yiyuan and Lee, Katie and Cai, Panpan and Hsu, David and Kavraki, Lydia E.},
     title = {The Planner Optimization Problem: Formulations and Frameworks},
