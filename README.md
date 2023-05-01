@@ -56,7 +56,17 @@ for i in range(100):
 Our complete documentation is available at [https://opof.kavrakilab.org](https://opof.kavrakilab.org).
 
 ## Citing
-TBC
+If you use OPOF, please cite us with:
+
+```
+@article{lee23opof,
+  author = {Lee, Yiyuan and Lee, Katie and Cai, Panpan and Hsu, David and Kavraki, Lydia E.},
+  title = {The Planner Optimization Problem: Formulations and Frameworks},
+  booktitle = {arXiv},
+  year = {2023},
+  doi = {10.48550/ARXIV.2303.06768},
+}
+```
 
 ## License
 
