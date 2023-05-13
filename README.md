@@ -16,6 +16,7 @@ OPOF includes the following stable algorithm implementations.
 
 * [Generator-Critic (GC)](https://opof.kavrakilab.org/algorithms/GC.html) - Learns a conditional and stochastic generator using gradient-based deep learning techniques.
 * [SMAC](https://opof.kavrakilab.org/algorithms/SMAC.html) - Learns an unconditional and deterministic generator using the latest Bayesian optimization techniques. Wrapper around the actively maintained [SMAC3](https://github.com/automl/SMAC3) Bayesian optimization library. 
+* [PyPop](https://opof.kavrakilab.org/algorithms/PyPop.html) - Learns an unconditional and deterministic generator using the latest evolution strategies. Wrapper around the actively maintained [PyPop7](https://github.com/Evolutionary-Intelligence/pypop) library for population-based (i.e. evolution strategy) techniques. 
 
 We expect the list to grow with time, and welcome any additions.
 
