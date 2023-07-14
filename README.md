@@ -36,7 +36,7 @@ To install OPOF's core library, run `pip install opof`.
 
 External packages containing additional domains and algorithms may be installed alongside OPOF. Please refer to the specific package's setup instructions.
 
-OPOF is officially tested and supported for Python 3.9, 3.10, 3.11 on Linux.
+OPOF is officially tested and supported for Python 3.9, 3.10 on Linux.
 
 ## API
 Below is an example of interacting with the `RandomWalk2D[11]` domain. 
